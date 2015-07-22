@@ -1,92 +1,80 @@
 <?php
-$gpxFile = "woltersdorf.gpx";
+require_once('lib/Activity.php');
 
-if (!empty($gpxFile)) {
-  $path = 'gpxFiles/'.$gpxFile;
+$firstAct = new Activity('activity_600703191.gpx');
+$secondAct = new Activity('20150426_060230.gpx');
 
-  if (file_exists($path)) {
-    $xml = simplexml_load_file($path);
-    $title = $xml->trk->name;
+$firstHr = $firstAct->combineHr();
+$secondHr = $secondAct->combineHr();
 
-    $coords = '';
-    $i = 0;
-    foreach ($xml->trk->trkseg->trkpt as $point) {
-      $i++;
-
-      $attr = $point->attributes();
-      $lat = (array)$attr->lat;
-      $lon = (array)$attr->lon;
-
-      $coords .= '{"lat":' . $lat[0] . ', "lng":' . $lon[0] . '},';
-//      if($i > 5) {
-//        break;
-//      }
-    }
-  } else {
-    exit('Cannot load gpx file!');
+$data = [];
+foreach ($firstHr as $key => $hr) {
+    $data[] = "['" .$key. "', $hr, " . (array_key_exists($key,$secondHr) ? $secondHr[$key] : 0) . "]";
   }
 
-}
+$jsValue = implode(",", $data);
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
-  <style type="text/css">
-    html, body, #map-canvas { height: 100%; margin: 0; padding: 0;}
-  </style>
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+
   <script type="text/javascript"
           src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCMdiOluGYwLD5NhjmIMXXOBqR7fBUvcCA">
   </script>
+  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
   <script type="text/javascript">
-    var flightPath;
-    var map;
-    var coords = [<?php echo $coords;?>];
-    function initialize() {
+    var coords = <?php echo $firstAct->getJson();?>;
+    var coords2 = <?php echo $secondAct->getJson();?>;
+  </script>
+  <script type="text/javascript"
+          src="script/script.js">
+  </script>
+  <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+  <script type="text/javascript">
 
-      var start = { lat: 50.38488797843456, lng: 30.467951400205493};
-      var mapOptions = {
-        center: start,
-        zoom: 14,
-        mapTypeId: google.maps.MapTypeId.TERRAIN
-      };
-      map = new google.maps.Map(document.getElementById('map-canvas'),
-        mapOptions);
+    // Load the Visualization API and the piechart package.
+    google.load('visualization', '1.0', {'packages':['corechart']});
 
-      var marker = new google.maps.Marker({
-        position: start,
-        map: map,
-        title: 'This is a start'
-      });
-      var flightPlanCoordinates = coords;
+    // Set a callback to run when the Google Visualization API is loaded.
+    google.setOnLoadCallback(drawChart);
 
-      setInterval(function(){
-        marker.setPosition(coords[0]);
-        coords.shift();
-      }, 10);
+    // Callback that creates and populates a data table,
+    // instantiates the pie chart, passes in the data and
+    // draws it.
+    function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+          ['Time', 'HR', 'HR2'],
+          <?php echo $jsValue; ?>
+        ]);
 
+        var options = {
+          title: 'HR',
+          hAxis: {title: 'Time',  titleTextStyle: {color: '#333'}, format: '##:##:##'}
+        };
 
-      flightPath = new google.maps.Polyline({
-        path: flightPlanCoordinates,
-        strokeColor: '#FF0000',
-        strokeOpacity: 1.0,
-        strokeWeight: 2
-      });
-
-      addLine();
+        var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
+        chart.draw(data, options);
     }
-
-    function addLine() {
-      flightPath.setMap(map);
-    }
-
-    function removeLine() {
-      flightPath.setMap(null);
-    }
-    google.maps.event.addDomListener(window, 'load', initialize);
   </script>
 </head>
 <body>
 <div id="map-canvas"></div>
+<div id="info-table">
+  <table>
+    <tr>
+      <th>HR</th>
+      <th>Altitude</th>
+    </tr>
+    <tr>
+      <td id="hr-value">0</td>
+      <td id="altitude-value">0</td>
+    </tr>
+  </table>
+</div>
+
+<!--Div that will hold the pie chart-->
+<div id="chart_div"></div>
 </body>
 </html>
