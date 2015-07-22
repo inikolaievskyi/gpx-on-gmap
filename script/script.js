@@ -14,7 +14,7 @@ function initialize() {
   firstActivity.addLine();
   secondActivity.addLine();
   firstActivity.runMarker();
-  //secondActivity.runMarker();
+  secondActivity.runMarker();
 
 }
 
@@ -43,8 +43,7 @@ Activity = function (obj, map, pathColor) {
 
   this.marker = new google.maps.Marker({
     position: this.startPoint,
-    map: this.map,
-    icon: 'img/m2.jpg'
+    map: this.map
   });
 
 

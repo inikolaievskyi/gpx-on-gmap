@@ -17,11 +17,6 @@ class Point
     $this->time = $time;
   }
 
-  public function getCoordinatesString()
-  {
-    return '{"lat": ' . $this->lat . ', "lng": ' . $this->lon . '}';
-  }
-
   /**
    * @return mixed
    */
