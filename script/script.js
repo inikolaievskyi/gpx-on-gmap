@@ -9,12 +9,9 @@ function initialize() {
     mapOptions);
 
   var firstActivity = new Activity(coords, map, '#0000ff');
-  var secondActivity = new Activity(coords2, map);
 
   firstActivity.addLine();
-  secondActivity.addLine();
   firstActivity.runMarker();
-  secondActivity.runMarker();
 
 }
 
@@ -27,12 +24,12 @@ Activity = function (obj, map, pathColor) {
   this.pathColor = pathColor ? pathColor : '#FF0000';
   this.getPath = function() {
     var data = [];
-    for (i in this.points) {
+    for (var i in this.points) {
       data.push(this.points[i].LatLng);
     }
 
     return data;
-  }
+  };
 
   this.flightPath = new google.maps.Polyline({
     path: me.getPath(),
@@ -54,12 +51,12 @@ Activity = function (obj, map, pathColor) {
   this.runMarker = function() {
     var me = this;
     setInterval(function () {
-      var point = me.points[0]
+      var point = me.points[0];
       me.marker.setPosition(point.LatLng);
       $('#hr-value').text(point.hr);
       $('#altitude-value').text(point.alt);
       me.points.shift();
     }, 10);
   }
-}
+};
 google.maps.event.addDomListener(window, 'load', initialize);

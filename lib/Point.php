@@ -1,14 +1,41 @@
 <?php
 
+/**
+ * Class Point
+ */
 class Point
 {
+  /**
+   * @var
+   */
   protected $lat;
+  /**
+   * @var
+   */
   protected $lon;
+  /**
+   * @var int
+   */
   protected $altitude;
+  /**
+   * @var
+   */
   protected $time;
+  /**
+   * @var
+   */
   protected $cad;
+  /**
+   * @var int
+   */
   protected $hr = 0;
 
+  /**
+   * @param $lat
+   * @param $lon
+   * @param $altitude
+   * @param $time
+   */
   public function __construct($lat, $lon, $altitude, $time)
   {
     $this->lat = $lat;
@@ -57,7 +84,10 @@ class Point
     $this->hr = $hr;
   }
 
-  public function getJson()
+  /**
+   * @return array
+   */
+  public function getData()
   {
     return array(
       'lat' => $this->lat,
